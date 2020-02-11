@@ -1,0 +1,1 @@
+require 'activeadmin/dropify/engine'
