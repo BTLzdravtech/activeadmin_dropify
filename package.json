@@ -1,0 +1,23 @@
+{
+  "name": "@btl/activeadmin_dropify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/dropify.js",
+  "files": [
+    "src/*"
+  ],
+  "scripts": {
+    "prepublishOnly": "rm -rf src && cp -R app/assets/javascripts src && cp -R app/assets/stylesheets src/scss && cp -R app/assets/fonts src/fonts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BTLzdravtech/activeadmin_dropify.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BTLzdravtech/activeadmin_dropify/issues"
+  },
+  "homepage": "https://github.com/BTLzdravtech/activeadmin_dropify#readme"
+}

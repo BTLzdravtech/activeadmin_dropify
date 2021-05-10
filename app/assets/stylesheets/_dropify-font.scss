@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'dropify';
-    src: asset-url('dropify.eot');
-    src: asset-url('dropify.eot#iefix') format('embedded-opentype'),
-         asset-url('dropify.woff') format('woff'),
-         asset-url('dropify.ttf') format('truetype'),
-         asset-url('dropify.svg#dropify') format('svg');
+    src: asset-url('../fonts/dropify.eot');
+    src: asset-url('../fonts/dropify.eot#iefix') format('embedded-opentype'),
+         asset-url('../fonts/dropify.woff') format('woff'),
+         asset-url('../fonts/dropify.ttf') format('truetype'),
+         asset-url('../fonts/dropify.svg#dropify') format('svg');
     font-weight: normal;
     font-style: normal;
 }
