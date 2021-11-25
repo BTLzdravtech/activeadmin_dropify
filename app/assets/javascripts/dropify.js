@@ -27,6 +27,8 @@ function Dropify(element, options) {
         maxFileSizePreview: "5M",
         allowedFormats: ['portrait', 'square', 'landscape'],
         allowedFileExtensions: ['*'],
+        hasCrop: false,
+        cropInput: "",
         messages: {
             'default': 'Drag and drop a file here or click',
             'replace': 'Drag and drop or click to replace',
@@ -178,7 +180,7 @@ Dropify.prototype.readFile = function(input)
         this.setFileInformations(file);
         this.errorsEvent.errors = [];
         this.checkFileSize();
-		this.isFileExtensionAllowed();
+        this.isFileExtensionAllowed();
 
         if (this.isImage() && this.file.size < this.sizeToByte(this.settings.maxFileSizePreview)) {
             this.input.on('dropify.fileReady', this.onFileReady);
@@ -187,9 +189,47 @@ Dropify.prototype.readFile = function(input)
                 srcBase64 = _file.target.result;
                 image.src = _file.target.result;
                 image.onload = function() {
-                    _this.setFileDimensions(this.width, this.height);
-                    _this.validateImage();
-                    _this.input.trigger(eventFileReady, [true, srcBase64]);
+                    if (_this.settings.hasCrop) {
+                        import('cropperjs').then((Cropper) => {
+                            var form = $("<form id='crop_photo_form' title='Crop image'><div class='crop_photo_modal_area'></div></form>").appendTo("body");
+                            form.dialog({
+                                modal: true,
+                                open: function open(_event, _ui) {
+                                    const imageCrop = new Image();
+                                    imageCrop.src = srcBase64;
+
+                                    $('.crop_photo_modal_area').html(imageCrop);
+
+                                    window.cropper = new Cropper.default(imageCrop, {
+                                        aspectRatio: 1,
+                                        autoCropArea: 1
+                                    });
+                                },
+                                buttons: {
+                                    "Crop": function cropImage() {
+                                        var canvas = window.cropper.getCroppedCanvas({
+                                            width: 500,
+                                            height: 500
+                                        });
+
+                                        var imageBase64 = canvas.toDataURL('image/' + _this.getFileType());
+
+                                        $("#" + _this.settings.cropInput).val(imageBase64);
+                                        _this.setFileDimensions(500, 500);
+                                        _this.validateImage();
+                                        _this.input.trigger(eventFileReady, [true, imageBase64]);
+
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        });
+                    } else {
+                        $("#" + _this.settings.cropInput).val(srcBase64);
+                        _this.setFileDimensions(this.width, this.height);
+                        _this.validateImage();
+                        _this.input.trigger(eventFileReady, [true, srcBase64]);
+                    }
                 };
 
             }.bind(this);
@@ -373,8 +413,8 @@ Dropify.prototype.setContainerSize = function()
 Dropify.prototype.isTouchDevice = function()
 {
     return (('ontouchstart' in window) ||
-            (navigator.MaxTouchPoints > 0) ||
-            (navigator.msMaxTouchPoints > 0));
+      (navigator.MaxTouchPoints > 0) ||
+      (navigator.msMaxTouchPoints > 0));
 };
 
 /**
@@ -402,19 +442,19 @@ Dropify.prototype.isImage = function()
 };
 
 /**
-* Test if the file extension is allowed
-*
-* @return {Boolean}
-*/
+ * Test if the file extension is allowed
+ *
+ * @return {Boolean}
+ */
 Dropify.prototype.isFileExtensionAllowed = function () {
 
-	if (this.settings.allowedFileExtensions.indexOf('*') != "-1" || 
-        this.settings.allowedFileExtensions.indexOf(this.getFileType()) != "-1") {
-		return true;
-	}
-	this.pushError("fileExtension");
+    if (this.settings.allowedFileExtensions.indexOf('*') != "-1" ||
+      this.settings.allowedFileExtensions.indexOf(this.getFileType()) != "-1") {
+        return true;
+    }
+    this.pushError("fileExtension");
 
-	return false;
+    return false;
 };
 
 /**
@@ -450,9 +490,9 @@ Dropify.prototype.sizeToByte = function(size)
 
     if (size !== 0) {
         var unit  = size.slice(-1).toUpperCase(),
-            kb    = 1024,
-            mb    = kb * 1024,
-            gb    = mb * 1024;
+          kb    = 1024,
+          mb    = kb * 1024,
+          gb    = mb * 1024;
 
         if (unit === 'K') {
             value = parseFloat(size) * kb;
@@ -513,10 +553,10 @@ Dropify.prototype.getImageFormat = function()
 };
 
 /**
-* Push error
-*
-* @param {String} errorKey
-*/
+ * Push error
+ *
+ * @param {String} errorKey
+ */
 Dropify.prototype.pushError = function(errorKey) {
     var e = $.Event("dropify.error." + errorKey);
     this.errorsEvent.errors.push(e);
@@ -553,7 +593,7 @@ Dropify.prototype.showError = function(errorKey)
 Dropify.prototype.getError = function(errorKey)
 {
     var error = this.settings.error[errorKey],
-        value = '';
+      value = '';
 
     if (errorKey === 'fileSize') {
         value = this.settings.maxFileSize;
@@ -568,8 +608,8 @@ Dropify.prototype.getError = function(errorKey)
     } else if (errorKey === 'imageFormat') {
         value = this.settings.allowedFormats.join(', ');
     } else if (errorKey === 'fileExtension') {
-		value = this.settings.allowedFileExtensions.join(', ');
-	}
+        value = this.settings.allowedFileExtensions.join(', ');
+    }
 
     if (value !== '') {
         return error.replace('{{ value }}', value);
@@ -633,4 +673,3 @@ $.fn[pluginName] = function(options) {
 
     return this;
 };
-
