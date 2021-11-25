@@ -153,8 +153,7 @@ Dropify.prototype.createElements = function()
     var defaultFile = this.settings.defaultFile || '';
 
     if (defaultFile.trim() !== '') {
-        // sireko: remove to safe S3 image url
-        // this.file.name = this.cleanFilename(defaultFile);
+        this.file.name = this.cleanFilename(defaultFile);
         this.setPreview(this.isImage(), defaultFile);
     }
 };
